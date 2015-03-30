@@ -131,9 +131,62 @@ function er_menu_main() {
 }
 
 function er_menu_equipment() {
+	global $wpdb;
+	
+	// Define basics
+	$but_label = "Add new";
+	$eq_name = "";
+	$eq_id = "";
+
+	if ( isset( $_POST[ 'eq_id' ] ) && $_POST[ 'action' ] == 'Delete' ) {
+		// Means we're deleting this entry
+		$wpdb->delete( $wpdb->prefix . "equipment_assets", array( "id" => $_POST[ 'eq_id' ] ) );
+	}
+
+	if ( isset( $_POST[ 'eq_id' ] ) && $_POST[ 'action' ] == 'Edit' ) {
+		// Means we got a request to show it for updating
+		$eq_id = $_POST[ 'eq_id' ];
+		$eq_name = $wpdb->get_var( 'SELECT name FROM ' . $wpdb->prefix . 'equipment_assets WHERE id = ' . $eq_id . ';' );
+		$but_label = "Update";
+	}
+
+	if ( isset( $_POST[ 'eq_id' ] ) && $_POST[ 'action' ] == 'Update' ) {
+		// Means updating is actually happening
+		$wpdb->update( $wpdb->prefix . 'equipment_assets', array( 'name' => $_POST[ 'eq_name' ] ), array( 'id' => $_POST[ 'eq_id' ] ) );
+	}
+
+	if ( isset( $_POST[ 'eq_name' ] ) && $_POST[ 'action' ] == "Add new" ) {
+		// New addition
+		$wpdb->insert( $wpdb->prefix . 'equipment_assets', array( 'name' => $_POST[ 'eq_name' ] ) );
+	}
+
 	?>
 	<h2>Rental equipment management</h2>
-	
+	<form name="equipment_form" method="post" action="">
+	Equipment name: 
+	<input type=hidden name="eq_id" value="<?php echo $eq_id;?>">
+	<input type=text name="eq_name" value="<?php echo $eq_name;?>" size=40>
+	<input type="submit" name="action" class="button-primary" value="<?php echo $but_label;?>"></form>
+	<table cellpadding=5 style="border:1px">
+	<thead><th>ID</th><th>Asset name</th><th>Actions</th></thead>
+	<tbody>
+	<?php
+	$neq = $wpdb->get_var( 'SELECT COUNT(id) FROM ' . $wpdb->prefix . 'equipment_assets' );
+	if ($neq) {
+		$res = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->prefix . 'equipment_assets' );
+		foreach ($res as $r) {
+			echo "<tr>
+				<form method=post action=''>
+				<td><input type=hidden name=eq_id value=" . $r->id . ">" . $r->id . "</td>
+				<td>" . $r->name . "</td>
+				<td><input type=submit name=action value=Edit class=\"button-primary\">
+				<input type=submit name=action value=Delete class=\"button-primary\"></td>
+			      </tr>";
+		}
+	}
+	?>
+	</tbody>
+	</table>
 	<?php
 }
 
