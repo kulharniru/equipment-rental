@@ -78,10 +78,10 @@ function er_install() {
 	// Default options for colors in the calendar as well as the names of those
 	add_option( 'er_cal_busy_text', 'H&otilde;ivatud' );
 	add_option( 'er_cal_busy_col', '#FF0000' );
-	add_option( 'er_cal_busy_text', 'Broneeritud' );
-	add_option( 'er_cal_busy_col', '#FFFF00' );
-	add_option( 'er_cal_busy_text', 'Vaba' );
-	add_option( 'er_cal_busy_col', '#00FF00' );
+	add_option( 'er_cal_reserved_text', 'Broneeritud' );
+	add_option( 'er_cal_reserved_col', '#FFFF00' );
+	add_option( 'er_cal_free_text', 'Vaba' );
+	add_option( 'er_cal_free_col', '#00FF00' );
 }	
 
 // Register hook for initial database creation
@@ -101,13 +101,40 @@ function er_plugin_menu() {
 }
 
 function er_menu_main() {
+	// Handle the updating if the form is posted
+	if ( isset( $_POST[ "busy_text" ] ) ) {
+		// Update the fields to the submitted ones
+		update_option( 'er_cal_busy_text', $_POST[ "busy_text" ] );
+		update_option( 'er_cal_busy_col', $_POST[ "busy_col" ] );
+		update_option( 'er_cal_reserved_text', $_POST[ "res_text" ] );
+		update_option( 'er_cal_reserved_col', $_POST[ "res_col" ] );
+		update_option( 'er_cal_free_text', $_POST[ "free_text" ] );
+		update_option( 'er_cal_free_col', $_POST[ "free_col" ] );
+	}
 	?>
 	<h2>Here you can tune generic options for the plugin</h2>
+	<br/>
+	<form name="settings_form" method="post" action="">
+	<table cellpadding=10>
+	<tbody>
+		<tr><td align="right">Busy text:</td><td><input type="text" name="busy_text" value="<?php echo get_option('er_cal_busy_text');?>" size=20></td></tr>
+		<tr><td align="right">Busy color:</td><td bgcolor="<?php echo get_option('er_cal_busy_col');?>"><input type="text" name="busy_col" value="<?php echo get_option('er_cal_busy_col');?>" size=20></td></tr>
+		<tr><td align="right">Reserved text:</td><td><input type="text" name="res_text" value="<?php echo get_option('er_cal_reserved_text');?>" size=20></td></tr>
+		<tr><td align="right">Reserved color:</td><td bgcolor="<?php echo get_option('er_cal_reserved_col');?>"><input type="text" name="res_col" value="<?php echo get_option('er_cal_reserved_col');?>" size=20></td></tr>
+		<tr><td align="right">Free text:</td><td><input type="text" name="free_text" value="<?php echo get_option('er_cal_free_text');?>" size=20></td></tr>
+		<tr><td align="right">Free color:</td><td bgcolor="<?php echo get_option('er_cal_free_col');?>"><input type="text" name="free_col" value="<?php echo get_option('er_cal_free_col');?>" size=20></td></tr>
+		<tr><td colspan=2 align="center"><input type=submit name="Update" class="button-primary"></td></tr>
+	</tbody>
+	</table>
+	</form>
 	<?php
 }
 
 function er_menu_equipment() {
-	echo "<h2>Rental equipment management</h2>";
+	?>
+	<h2>Rental equipment management</h2>
+	
+	<?php
 }
 
 function er_menu_clients() {
