@@ -268,8 +268,98 @@ function er_menu_clients() {
 	<?php
 }
 
+// Will get client list
+function er_get_client_list() {
+	return 0;
+}
+
+// Will fetch equipment list
+function er_get_equipment_list() {
+	return 0;
+}
+
 function er_menu_rentals() {
-	echo "<h2>Rental management</h2>";
+	global $wpdb;
+	
+	// Define basics
+	$but_label = "Add new";
+	$rent_id = "";
+	$cl_data = er_get_client_list();
+	$eq_data = er_get_equipment_list();
+	$rent_data = "";
+
+	if ( isset( $_POST[ 'rent_id' ] ) && $_POST[ 'action' ] == 'Delete' ) {
+		// Means we're deleting this entry
+		$wpdb->delete( $wpdb->prefix . "equipment_rentals", array( "id" => $_POST[ 'rent_id' ] ) );
+	}
+
+	if ( isset( $_POST[ 'rent_id' ] ) && $_POST[ 'action' ] == 'Edit' ) {
+		// Means we got a request to show it for updating
+		$rent_id = $_POST[ 'rent_id' ];
+		$rent_data = $wpdb->get_row( 'SELECT * FROM ' . $wpdb->prefix . 'equipment_rentals WHERE id = ' . $rent_id . ';' );
+		$but_label = "Update";
+	}
+
+	if ( isset( $_POST[ 'cl_id' ] ) && $_POST[ 'action' ] == 'Update' ) {
+		// Means updating is actually happening
+		/*
+		$wpdb->update( $wpdb->prefix . 'equipment_clients', 
+			array( 
+				'name' => $_POST[ 'cl_name' ],
+				'email' => $_POST[ 'cl_email' ],
+				'phone' => $_POST[ 'cl_phone' ]
+			), 
+			array( 'id' => $_POST[ 'cl_id' ] ) 
+			);
+		*/
+	}
+
+	if ( isset( $_POST[ 'cl_name' ] ) && $_POST[ 'action' ] == "Add new" ) {
+		// New addition
+		/*
+		$wpdb->insert( $wpdb->prefix . 'equipment_clients', 
+			array( 
+				'name' => $_POST[ 'cl_name' ],
+				'email' => $_POST[ 'cl_email' ],
+				'phone' => $_POST[ 'cl_phone' ]
+			) );
+		*/
+	}
+
+	?>
+	<h2>Rental periods management</h2>
+	<form name="equipment_form" method="post" action="">
+	<input type=hidden name="cl_id" value="<?php echo $cl_id;?>">
+	<table>
+	<tr><td>Client name:</td><td><input type=text name="cl_name" value="<?php echo $cl_data->name;?>" size=40></td></tr>
+	<tr><td>Client e-mail:</td><td><input type=text name="cl_email" value="<?php echo $cl_data->email;?>" size=40></td></tr>
+	<tr><td>Client phone:</td><td><input type=text name="cl_phone" value="<?php echo $cl_data->phone;?>" size=40></td></tr>
+	<tr><td colspan=2 align=center><input type="submit" name="action" class="button-primary" value="<?php echo $but_label;?>"></td></tr>
+	</table>
+	</form>
+	<table cellpadding=5 style="border:1px">
+	<thead><th>ID</th><th>Client name</th><th>E-Mail</th><th>Phone</th><th>Actions</th></thead>
+	<tbody>
+	<?php
+	$neq = $wpdb->get_var( 'SELECT COUNT(id) FROM ' . $wpdb->prefix . 'equipment_clients' );
+	if ($neq) {
+		$res = $wpdb->get_results( 'SELECT * FROM ' . $wpdb->prefix . 'equipment_clients' );
+		foreach ($res as $r) {
+			echo "<tr>
+				<form method=post action=''>
+				<td><input type=hidden name=cl_id value=" . $r->id . ">" . $r->id . "</td>
+				<td>" . $r->name . "</td>
+				<td>" . $r->email . "</td>
+				<td>" . $r->phone . "</td>
+				<td><input type=submit name=action value=Edit class=\"button-primary\">
+				<input type=submit name=action value=Delete class=\"button-primary\"></td>
+			      </tr>";
+		}
+	}
+	?>
+	</tbody>
+	</table>
+	<?php
 }
 
 ?>
